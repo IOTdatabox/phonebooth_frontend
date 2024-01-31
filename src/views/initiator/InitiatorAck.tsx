@@ -11,6 +11,9 @@ import { AppContext, IVideoInfo } from "~/components/AppContext";
 import { MQTT_TOPICS, ROLES, SOCKET_TOPICS } from "~/lib/constants";
 import Select from "~/lib/Select";
 
+import cheersGif from "/public/cheers.gif"
+
+
 const InitiatorAcknowledge = () => {
   const navigate = useNavigate();
   const { client } = useMqttState();
@@ -18,7 +21,7 @@ const InitiatorAcknowledge = () => {
 
   const [socket, isLoading, error, addListener, emitMessage] = useSocket();
 
-  const ageArray = Array.from({length: 63}, (_, i) => i + 18);
+  const ageArray = Array.from({ length: 63 }, (_, i) => i + 18);
 
   //get role from url
 
@@ -29,6 +32,8 @@ const InitiatorAcknowledge = () => {
       emitMessage("GET_TOKEN");
     }
   }, [socket, emitMessage]);
+
+  const history = useNavigate();
 
   useEffect(() => {
     prepareForCall();
@@ -65,7 +70,7 @@ const InitiatorAcknowledge = () => {
       ...videoInfo,
     };
 
-    
+
 
     console.log("updating booth info to publisher");
     updateBoothInfo({ ...boothInfo, role: "publisher" });
@@ -93,118 +98,28 @@ const InitiatorAcknowledge = () => {
   };
 
   return (
-    <>
-      <div className="flex flex-col justify-between mx-auto pt-20">
-        <h1 className="text-6xl">Ready to connect?</h1>
-
-        <h2 className="mt-5 text-2xl w-3/4 mx-auto leading-10">
-          {" "}
-          If you connect with a stranger for at least a minute, both of you will get a free drink. Do you accept?
-        </h2>
+    <div className='w-full h-full pt-[68px]'>
+      <img src='../bg-outgoing.svg' alt='outgoing-image' className='absolute w-full h-full top-0 right-0' />
+      <img src='../jameson-logo.svg' alt='jameson-logo' className='w-[276px] mx-auto' />
+      <p className='relative w-[496px] text-xl text-center z-10 mx-auto mt-[92px]'>ESTAMOS AMPLIANDO TU CÍRCULO, ESPERA UNOS SEGUNDOS MIENTRAS TE CONECTAMOS.</p>
+      <div className='w-[772px] h-[155px] bg-[#007749] flex gap-5 items-center px-3 rounded-full mx-auto relative mt-[33px] z-10'>
+        <div className='w-[138px] h-[138px] flex items-center justify-center rounded-full bg-cover bg-center' style={{ backgroundImage: `url(${cheersGif})` }}>
+          <img src='../phone-icon.svg' alt='phone-icon' className='w-[94px] h-[94px]' />
+        </div>
+        <div className='flex -gap-1'>
+          <img src='../soundwaves.gif' alt='soundwaves' className='w-[222px] h-[222px]' />
+          <img src='../soundwaves.gif' alt='soundwaves' className='w-[222px] h-[222px]' />
+        </div>
+        <img src='../logo.gif' alt='logo' className='w-[128px] h-[128px]' />
+        <p className='absolute bottom-0 text-[20px] left-[40%] font-bold'>Conectando...</p>
       </div>
-
-      {/*Form to get user name, last name, email and phone and ask them to accept t&C */}
-      <form className="flex flex-col w-3/4 mx-auto">
-        <div className="flex flex-row ">
-          <div className=" w-full text-center mt-8">
-            <Select
-              name="age"
-              isRequired={true}
-              type="number"
-              placeholder="Tell us your age"
-              onChange={(e) => console.log(e.target.value)}
-              options={ageArray.map((age) => ({ value: age.toString(), name: age.toString() }))}
-              pClassName="large-select"
-            />
-          </div>
-          {/* <div className=" w-1/2">
-            <Input
-              name="lastname"
-              isRequired={true}
-              type="text"
-              placeholder="Enter your last name"
-              onChange={(e) => console.log(e.target.value)}
-            />
-          </div> */}
-        </div>
-        {/* <div className="flex flex-row ">
-          <div className=" w-1/2">
-            <Input
-              name="email"
-              isRequired={true}
-              type="email"
-              placeholder="Enter your email"
-              onChange={(e) => console.log(e.target.value)}
-            />
-          </div>
-          <div className=" w-1/2">
-            <Input
-              name="phone"
-              isRequired={true}
-              type="tel"
-              placeholder="Enter your phone number"
-              onChange={(e) => console.log(e.target.value)}
-            />
-          </div>
-        </div> */}
-
-        <div className="flex flex-row ">
-          <div className=" w-full text-center mt-8">
-            <Checkbox
-              name="t&C"
-              pClassName="large-checkbox"
-              label="I accept the terms and conditions"
-              isRequired={true}
-              onChange={(e) => console.log(e.target.value)}
-            />
-          </div>
-        </div>
-      </form>
-
-      <button
-        className="m-5 p-5 w-3/4 mx-auto border-slate-600 hover:border-slate-200"
-        onClick={onNext}
-        disabled={!videoInfo.sessionId}
-      >
-        Next
-      </button>
-    </>
+      <div className='w-[328px] h-[63px] relative flex justify-center items-center mx-auto mt-5'>
+        <img src='../green-rec.svg' alt='green-rec' className='w-[63px] h-[63px] absolute z-10 left-0 top-0' />
+        <p className='w-[285px] py-1 text-xs text-center border border-[#007749] border-dashed rounded-full'>LEVANTA EL TELÉFONO PARA ESCUCHAR</p>
+      </div>
+      <img src='../hangup.svg' alt='hangup-image' className='w-[44px] h-[44px] absolute right-5 bottom-5 z-20' />
+    </div>
   );
 };
 
 export default InitiatorAcknowledge;
-
-const TermsAndConditions = () => (
-  <>
-    <div>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas id felis id ipsum vehicula interdum. Sed viverra
-      velit nec lacus eleifend, ac commodo purus varius. Duis auctor pharetra magna, sed ullamcorper quam dignissim a.
-      Integer commodo nulla sed risus rhoncus dictum. In hac habitasse platea dictumst. Proin ut velit sed arcu finibus
-      fringilla id quis sapien. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;
-      Quisque id nisl id mauris volutpat lobortis. Donec accumsan libero a velit tincidunt, at lobortis sapien maximus.
-      Nullam aliquam euismod quam non cursus.
-    </div>
-    <div>
-      Suspendisse potenti. Suspendisse lacinia, erat eget vulputate gravida, enim purus luctus lectus, eu scelerisque
-      lorem metus vel massa. Vivamus elementum, dui eu malesuada euismod, magna eros commodo sapien, eget tristique leo
-      magna in turpis. Fusce commodo ex at nibh pulvinar, eget viverra magna eleifend. Aliquam auctor purus nulla, eu
-      consequat nunc feugiat vitae. Nulla facilisi. Sed semper metus velit, eu facilisis quam iaculis id. Sed tristique
-      metus in felis dictum, id cursus nisl pharetra. Sed aliquam, enim eget mollis vestibulum, velit magna accumsan
-      dui, ac sollicitudin tortor arcu at ante. Sed sit amet elit elit.
-    </div>
-    <div>
-      Vestibulum sagittis leo non mi ultricies, eu laoreet odio cursus. Aliquam non bibendum erat. Curabitur ullamcorper
-      fermentum lacus, eget interdum turpis fermentum sit amet. Pellentesque habitant morbi tristique senectus et netus
-      et malesuada fames ac turpis egestas. Nunc a bibendum ante, ac facilisis magna. Fusce a nibh ac magna vestibulum
-      faucibus. Duis aliquam nulla quis lobortis aliquam. Sed pretium a sapien nec elementum. In hac habitasse platea
-      dictumst. Sed lobortis urna vel nisl bibendum faucibus.
-    </div>
-    <div>
-      In eget leo vel velit tincidunt pharetra a nec urna. Curabitur gravida eros nec enim tincidunt malesuada.
-      Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Integer quis mi
-      vitae ante finibus aliquam non non orci. Sed eget nibh vitae arcu sagittis tincidunt. Ut euismod ornare lectus,
-      eget pretium velit mattis vel. Nullam id nisi dui. Aliquam erat volutpat. Sed iaculis convallis tellus, sit amet
-      euismod sapien pharetra eget.
-    </div>
-  </>
-);

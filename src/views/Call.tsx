@@ -46,7 +46,7 @@ const Call = () => {
 
   const onCALL_END = (message: IVideoInfo) => {
     console.log("onCALL_END", message);
-    
+
     console.log({ message })
     console.log({ videoInfo })
 
@@ -62,7 +62,7 @@ const Call = () => {
   useEffect(() => {
     if (countdown === 0) {
       closeCall();
-      }
+    }
   }, [countdown]);
 
 
@@ -79,15 +79,6 @@ const Call = () => {
       const session = sessionRef.current;
       console.log("onCloseCall session", session.capabilities)
       session.disconnect();
-
-      // if (session.capabilities.forceDisconnect == 1) {
-      //   console.log("onCloseCall session", session.current)
-      //   const connectionId = session.connection.connectionId;
-      //   session.forceDisconnect(connectionId);
-
-      //   // The client can forceDisconnect. See the next section.
-      // }
-
     }
 
     setTimeout(() => {
@@ -95,7 +86,7 @@ const Call = () => {
     }, 2000);
 
   }
-  
+
 
 
 
@@ -182,27 +173,53 @@ const Call = () => {
     });
   };
 
+  const formatTime = (seconds: any) => {
+    let minutes = Math.floor(seconds / 60)
+    let remainingSeconds = seconds % 60
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`
+  }
+
+  const [seconds, setSeconds] = useState(0)
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  const text = ["¿Cómo te llamas?", "¿En qué barra estás?", "¿Cuál es tu spot favorito en P.R.?", "¿Jangueas en corillx o en la tuya?", "¿Cuál sería tu super poder?", "¿Cuál es tu comida favorita?", "¿Qué te apasiona?", "¿Empanadilla o Pastelillo?", "¿Amarillitos o tostones?", "¡Cuéntame algo que no sepan tus papás!"]
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSeconds((seconds) => seconds + 5)
+      setCurrentIndex((currentIndex) => (currentIndex + 1) % text.length)
+    }, 5000)
+    const timeout = setTimeout(() => {
+      navigate("/noresponse")
+    }, 6000)
+
+    return () => {
+      clearInterval(interval)
+      clearTimeout(timeout)
+    }
+  }, [text.length, history])
+
+
   return (
-    <>
-      <div className="flex flex-col h-full">
-        <>
-          <div id="videos" className="w-full  h-full text-8xl relative mt-4">
-            <div id="subscriber" className="w-full  h-full"></div>
-            <div id="publisher" className=" h-64 w-64 absolute bottom-4 right-4 "></div>
-            <div className="text-3xl p-4 absolute top-6 right-6 rounded-lg bg-gray-800">Timer: {countdownHHMM}</div>
-            <button type="button" onClick={()=>closeCall()} className="text-2xl py-6 absolute bottom-6 left-6 bg-red-800 bg-opacity-50 w-20 h-20 rounded-full text-center">
-                End
-              </button>
-            {countdown < 5 && (
-              <div className="text-2xl p-4 absolute bottom-6 left-6 rounded-lg bg-gray-800 bg-opacity-50 w-2/5 text-left ">
-                Congratulations, your circle of friends is wider. Check your email for your free drink.
-              </div>
-            )}
-          </div>
-        </>
-        {/* )} */}
+    <div className='w-full h-full'>
+      <img src='../jameson-logo.svg' alt='logo' className='absolute w-[186px] mt-[36px] ml-[45px] z-20' />
+      <p className='w-[196px] h-[88px] absolute border-[10px] border-[#007749] rounded-3xl top-20 right-10 text-5xl font-bold flex items-center justify-center z-10'>{formatTime(seconds)}</p>
+      <div className='w-[237px] h-[237px] bg-[#154734] border border-[#F1E4B2] border-dashed rounded-3xl absolute top-[38%] right-4 z-10'>
+        <div className='relative w-full h-full flex items-center justify-center'>
+          <img src='/hand2.svg' alt='spaeaker' className='w-[77px] h-[88px] absolute -top-10 -left-6' />
+          <h6 className='pb-[2px] border-b border-[#FFF0BF] absolute top-0 text-sm pt-1'>AMPLÍA TU CÍRCULO</h6>
+          <p className='w-[217px] text-3xl font-bold text-center'>{text[currentIndex]}</p>
+          <img src='/signifier.svg' alt='signifier' className='w-[22px] h-[29px] absolute bottom-3 right-4' />
+        </div>
+        <p className='text-sm p-2 opacity-80'>Te tiramos la toalla con algunas peguntas para romper el hielo.</p>
       </div>
-    </>
+      <button onClick={() => closeCall()}>
+        <img src='../hangup.svg' alt='hangup-image' className='w-[44px] h-[44px] absolute right-5 bottom-5 z-10' />
+      </button>
+      <img src='../caller.svg' alt='caller' className='w-[199px] h-[138px] absolute bottom-10 left-11 z-10' />
+      <img src='../logo.png' alt='logo' className='w-[123px] h-[122px] absolute bottom-10 right-72 z-10' />
+      <img src='/girl.png' alt='hangup-image' className='h-full w-full absolute top-0 left-0 z-0' />
+    </div>
   );
 };
 

@@ -114,15 +114,7 @@ const Start = () => {
 
   return (
      <>
-     <div className="container min-w-[600px] h-screen flex flex-col items-start w-screen">
-       <div className="rounded-full bg-black  flex h-26 m-4" onClick={() => navigate("/")}>
-         <img src={sup3rnovaLogo} className="logo react" alt="logo" />
-        </div>
-        <div className="h-screen-minus-100 w-full">
        <Outlet />
-
-        </div>
-     </div>
    </>
   );
 };

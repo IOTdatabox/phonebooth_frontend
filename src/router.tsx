@@ -6,6 +6,7 @@ import Call from "./views/Call";
 import NewCall from "./views/receiver/NewCall";
 import Start from "./views/start";
 import Thankyou from "./views/Thankyou";
+import NoResponse from "./views/NoResponse";
 
 const router = createBrowserRouter([
   {
@@ -55,6 +56,11 @@ const router = createBrowserRouter([
     path: "thankyou",
     element: <Thankyou />,
   },
+  {
+    path: "noresponse",
+    element: <NoResponse />,
+  },
+
 ]);
 
 export default router;

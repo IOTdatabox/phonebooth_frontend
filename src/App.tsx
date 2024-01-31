@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { RouterProvider } from "react-router-dom";
 import router from "./router";
 import { AppContext, IBoothInfo, IVideoInfo } from "./components/AppContext";
+import Settings from "./components/Settings";
 
 
 const App = () => {
@@ -16,7 +17,7 @@ const App = () => {
     receiver: "",
   });
 
-  
+
   useEffect(() => {
     const boothInfo: IBoothInfo = {
       id: randomString(18),
@@ -29,16 +30,22 @@ const App = () => {
   }, []);
 
   return (
-    <AppContext.Provider
-      value={{
-        boothInfo: _boothInfo as IBoothInfo,
-        updateBoothInfo: _updateBoothInfo,
-        videoInfo: _videoInfo as IVideoInfo,
-        updateVideoInfo: _updateVideoInfo,
-      }}
-    >
-      <RouterProvider router={router} />
-    </AppContext.Provider>
+    <main className='w-full h-screen overflow-hidden relative'>
+      <img src='../curved-bg.svg' alt='curved-background' className='h-screen absolute right-0 top-0 z-10' />
+      <Settings />
+
+      <AppContext.Provider
+        value={{
+          boothInfo: _boothInfo as IBoothInfo,
+          updateBoothInfo: _updateBoothInfo,
+          videoInfo: _videoInfo as IVideoInfo,
+          updateVideoInfo: _updateVideoInfo,
+        }}
+      >
+
+        <RouterProvider router={router} />
+      </AppContext.Provider>
+    </main>
   );
 };
 
@@ -68,66 +75,66 @@ const randomString = (length: number) => {
 
 
 
-  // const { message: paylaod } = useSubscription([
-  //   MQTT_TOPICS.CALL_RING,
-  //   MQTT_TOPICS.CALL_ACCEPT,
-  //   MQTT_TOPICS.CALL_STARTED,
-  //   MQTT_TOPICS.CALL_END,
-  // ]);
+// const { message: paylaod } = useSubscription([
+//   MQTT_TOPICS.CALL_RING,
+//   MQTT_TOPICS.CALL_ACCEPT,
+//   MQTT_TOPICS.CALL_STARTED,
+//   MQTT_TOPICS.CALL_END,
+// ]);
 
-  // useEffect(() => {
-  //   onPayloadRecieved(paylaod);
-  // }, [paylaod]);
+// useEffect(() => {
+//   onPayloadRecieved(paylaod);
+// }, [paylaod]);
 
-  // const parsePayload = (payloadMessage: string | IMessageStructure) =>
-  //   typeof payloadMessage === "string" ? JSON.parse(payloadMessage) : payloadMessage;
+// const parsePayload = (payloadMessage: string | IMessageStructure) =>
+//   typeof payloadMessage === "string" ? JSON.parse(payloadMessage) : payloadMessage;
 
 
-  // const onCallRing = (payload: any) => {
-  //   const { sessionId, token, initiator } = payload;
+// const onCallRing = (payload: any) => {
+//   const { sessionId, token, initiator } = payload;
 
-  //   if (!sessionId || !token || !initiator) return;
+//   if (!sessionId || !token || !initiator) return;
 
-  //   console.log(initiator, _boothInfo?.mac);
-  //   //! Do nothing if initiator is same as booth
-  //   if (initiator === _boothInfo?.mac) {
-  //     console.log("initiator is same as booth");
-  //     return;
-  //   }
+//   console.log(initiator, _boothInfo?.mac);
+//   //! Do nothing if initiator is same as booth
+//   if (initiator === _boothInfo?.mac) {
+//     console.log("initiator is same as booth");
+//     return;
+//   }
 
-  //   //! Update video info with new session details and status to 'ringing'
-  //   _updateVideoInfo({
-  //     sessionId,
-  //     token,
-  //     status: "ringing",
-  //     initiator,
-  //     receiver: "",
-  //   });
-  // };
+//   //! Update video info with new session details and status to 'ringing'
+//   _updateVideoInfo({
+//     sessionId,
+//     token,
+//     status: "ringing",
+//     initiator,
+//     receiver: "",
+//   });
+// };
 
-  //** this is called when receiver sends CALL ACCEPT, so we stops the ringing on the booths other than receiver */
-  // const onCallAccept = (payload: any) => {
-  //   const { sessionId, token, initiator, receiver } = payload as IVideoInfo;
+//** this is called when receiver sends CALL ACCEPT, so we stops the ringing on the booths other than receiver */
+// const onCallAccept = (payload: any) => {
+//   const { sessionId, token, initiator, receiver } = payload as IVideoInfo;
 
-  //   if (!sessionId || !token || !receiver) return;
+//   if (!sessionId || !token || !receiver) return;
 
-  //   //** update to video status to idle if receiver is not same as booth */
+//   //** update to video status to idle if receiver is not same as booth */
 
-  //   if (_boothInfo?.mac !== receiver) {
-  //     const __videoInfo: IVideoInfo = {
-  //       ..._videoInfo,
-  //       receiver: "",
-  //       status: "idle",
-  //     };
+//   if (_boothInfo?.mac !== receiver) {
+//     const __videoInfo: IVideoInfo = {
+//       ..._videoInfo,
+//       receiver: "",
+//       status: "idle",
+//     };
 
-  //     _updateVideoInfo(__videoInfo);
-  //   } else {
-  //     const __videoInfo: IVideoInfo = {
-  //       ..._videoInfo,
-  //       receiver: "",
-  //       status: "waiting",
-  //     };
+//     _updateVideoInfo(__videoInfo);
+//   } else {
+//     const __videoInfo: IVideoInfo = {
+//       ..._videoInfo,
+//       receiver: "",
+//       status: "waiting",
+//     };
 
-  //     _updateVideoInfo(__videoInfo);
-  //   }
-  // };
+//     _updateVideoInfo(__videoInfo);
+//   }
+// };

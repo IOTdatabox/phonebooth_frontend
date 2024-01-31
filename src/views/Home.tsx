@@ -1,148 +1,170 @@
-import sup3rnovaLogo from "../assets/logo.svg";
-import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import { useMqttState, useSubscription } from "../@mqtt-react-hooks";
-import { MQTT_TOPICS, SOCKET_TOPICS } from "../lib/constants";
-import { AppContext, IVideoInfo, defaultVideoInfo } from "../components/AppContext";
-import io, { Socket } from "socket.io-client";
-import useSocket from "../components/useSocket";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const SOCKET_SERVER_URL = "http://localhost:8000"; // replace with your Socket.IO server URL
+import { useMqttState } from "~/@mqtt-react-hooks";
+import useSocket from "~/components/useSocket";
 
-function Home() {
+
+import { AppContext, IVideoInfo } from "~/components/AppContext";
+import { MQTT_TOPICS, ROLES, SOCKET_TOPICS } from "~/lib/constants";
+import { motion } from "framer-motion";
+
+import markBox from "/public/ck-mark-box.svg";
+import Terms from "~/components/Terms";
+
+
+const InitiatorAcknowledge = () => {
+  const [showTerms, setShowTerms] = useState(false);
+
   const navigate = useNavigate();
-
+  const { client } = useMqttState();
   const { boothInfo, updateBoothInfo, videoInfo, updateVideoInfo } = useContext(AppContext);
 
   const [socket, isLoading, error, addListener, emitMessage] = useSocket();
 
-  const { client } = useMqttState();
-  const { message: payload } = useSubscription([MQTT_TOPICS.CALL_RING]);
+  const ageArray = Array.from({ length: 63 }, (_, i) => i + 18);
+
+  //get role from url
 
   useEffect(() => {
-    if (socket && socket.connected && !boothInfo?.mac) {
-      emitMessage("GET_MAC");
-    }
-    if (socket && socket.connected) {
-      emitMessage("HEADSET_STATUS");
+    //console.log(videoInfo);
+    if (socket && socket.connected && !videoInfo.sessionId) {
+      //console.log("emitting get token");
+      emitMessage("GET_TOKEN");
     }
   }, [socket, emitMessage]);
 
+  const history = useNavigate();
 
-  useEffect(() => { 
-    updateVideoInfo({...defaultVideoInfo})
+  useEffect(() => {
+    prepareForCall();
   }, []);
 
   useEffect(() => {
     if (socket) {
-      const _onHeadsetPicked = addListener("__HEADSET_STATUS", onHeadSetPicked);
-      const _onMacAdd = addListener(SOCKET_TOPICS.__MAC, onMacAddressRecieved);
+      const _onTokenRcvd = addListener(SOCKET_TOPICS.__TOKEN, onTokenReceived);
 
       return () => {
-        _onHeadsetPicked();
-        _onMacAdd();
+        _onTokenRcvd();
       };
     }
   }, [socket, addListener]);
 
-  const onMacAddressRecieved = (mac: string) => {
-    console.log("mac recieved", mac);
+  const onTokenReceived = (sessionToken: { session_id: string; token: string }) => {
+    //console.log("token recieved", sessionToken);
+    const { session_id: sessionId, token } = sessionToken;
 
-    const _boothInfo = {
-      ...boothInfo,
-      mac: mac + "-" + Math.floor(Math.random() * 1000),
-    };
-
-    updateBoothInfo(_boothInfo);
-  };
-
-  const onHeadSetPicked = (data: any) => {
-    console.log("headset picked", data);
-
-    if (data?.picked === true) {
-      IntializeCall();
-    }
-  };
-
-  useEffect(() => {
-    onPayloadRecieved(payload);
-  }, [payload]);
-
-  useEffect(() => {
-    console.log("MQTT Connected", client?.connected);
-  }, [client?.connected]);
-
-  const onPayloadRecieved = (payload: any) => {
-    console.log("payload recieved", payload);
-
-    if (!payload) return;
-
-    const { topic, message } = payload;
-
-    if (topic === MQTT_TOPICS.CALL_RING) {
-      onCALL_RING(message);
-    }
-  };
-
-  const onCALL_RING = (payload: any) => {
-    const { sessionId, token, initiator } = payload;
-
-    //if (videoInfo?.status !== "idle") return;
-    if (initiator === boothInfo?.mac) return;
-
-    const _videoInfo: IVideoInfo = {
-      ...videoInfo,
+    const videoInfo: IVideoInfo = {
+      sessionId,
+      token,
       incomming_sessionId: sessionId,
       incomming_token: token,
       status: "ringing",
-      initiator: initiator,
+      initiator: boothInfo?.mac,
       receiver: "",
     };
+    //update video info context
+    updateVideoInfo(videoInfo);
 
-    console.log("video info", _videoInfo);
+    //publish video info to mqtt
+    const payload = {
+      ...videoInfo,
+    };
 
-    updateVideoInfo(_videoInfo);
 
-    if (boothInfo.mac === "") {
-      
-      updateBoothInfo({...boothInfo, mac: generateRandomMac()})
 
-    }
+    console.log("updating booth info to publisher");
+    updateBoothInfo({ ...boothInfo, role: "publisher" });
 
-    navigate("/start/new-call");
+    client?.publish(MQTT_TOPICS.CALL_RING, JSON.stringify(payload));
   };
 
-  const IntializeCall = () => {
-    
+  const prepareForCall = () => {
+    if (!videoInfo.sessionId) return;
 
-    navigate("/start/initiator-ack");
+    const payload = {
+      ...videoInfo,
+    };
+
+    client?.publish(MQTT_TOPICS.CALL_RING, JSON.stringify(payload));
+  };
+
+  const onNext = () => {
+    client?.publish(
+      MQTT_TOPICS.CALL_CONNECTING,
+      JSON.stringify({ ...videoInfo, status: videoInfo.status === "connecting" ? "connected" : "connecting" })
+    );
+
+    navigate(`/start/call`);
   };
 
   return (
-    <>
-      <div className="container mx-auto min-w-[600px] h-full flex item-center flex-col">
-        <div className="rounded-full bg-black h-96 w-96 flex items-center justify-center m-auto">
-          <img src={sup3rnovaLogo} className="logo react" alt="logo" />
-        </div>
-
-        <h1 className="">Ready to widen your circle?</h1>
-        <h2 className="mt-5"> Pickup the handset and connect with a stranger</h2>
-
-        <button className="m-5 p-5 w-3/4 mx-auto" onClick={IntializeCall} disabled={isLoading}>
-          Or use speaker instead?
-        </button>
+    <div className="w-full flex flex-col items-center justify-center">
+      <motion.img
+        initial={{ x: -15 }}
+        animate={{ x: [0, -15, 0] }}
+        transition={{ yoyo: true, ease: "linear", duration: 3, repeat: Infinity }}
+        src="bottle.svg"
+        alt="bottle-image"
+        className="h-[90vh] absolute left-2 bottom-0 z-10"
+      />
+      <motion.img initial={{ scale: 0.5 }} animate={{ scale: [1, 0.5, 1] }} transition={{ yoyo: true, ease: "linear", duration: 1, repeat: Infinity }} src="logo.png" alt="logo-image" className="w-[212px] mt-16" />
+      <p className="w-[290px] text-xs text-center mt-9">
+        OPRIME EL BOTÓN PARA INICIAR LLAMADA A OTRO TELÉFONO DE JAMESON.
+      </p>
+      <button
+        className="text-[64px] font-bold bg-[#007749] px-14 py-0 rounded-[31px] mt-3"
+        onClick={onNext}
+        disabled={!videoInfo.sessionId}
+      >
+        ¡LLAMAR!
+      </button>
+      <div className="flex items-center gap-2 mt-10">
+        <span
+          className="w-[33px] h-[33px] bg-cover bg-center flex items-center justify-center"
+          style={{ backgroundImage: `url(${markBox})` }}
+        >
+          <img src="ck-mark.svg" alt="tick-image" className="w-[18px]" />
+        </span>
+        <p className="w-[266px] text-xs">
+          Confirmo que soy mayor de 18 años de edad, y acepto los términos y
+          condiciones.
+        </p>
       </div>
-    </>
+      <button
+        onClick={() => setShowTerms(true)}
+        className="bg-[#57262d] w-[248px] py-1 text-xs font-bold text-center rounded-full mt-3"
+      >
+        LEER TÉRMINOS Y CONDICIONES*
+      </button>
+      <div className="absolute w-[202px] py-4 right-0 top-[33%] bg-[#892427] z-10">
+        <p className="w-full text-center text-[15px] font-bold uppercase">
+          Amplía tu círculo,
+        </p>
+        <p className="w-full text-center text-[14px] font-light uppercase">
+          conecta con nuevas amistades y
+        </p>
+        <p className="w-full text-center text-[14px] font-bold uppercase">
+          gana premios.*
+        </p>
+      </div>
+      <div className="absolute bottom-0 w-full h-[33px] homepage-footer-bg z-20 flex items-center justify-center">
+        <p className="text-center text-xs text-yellow-700">
+          Consuma Responsablemente. Jameson Irish Whiskey 40% Alc. Vol.
+          Distribuye B. Fernánadez & Hnos.
+        </p>
+      </div>
+      <motion.img
+        src="hand.svg"
+        alt="hand-image"
+        className="h-[85vh] absolute -right-4 -bottom-3 z-10"
+        initial={{ y: 0 }}
+        animate={{ y: [0, -50, 0] }}
+        transition={{ yoyo: true, ease: "linear", duration: 5, repeat: Infinity }}
+      />
+      {showTerms && <Terms close={() => setShowTerms(false)} />}
+    </div>
   );
-}
+};
 
-export default Home;
-
-
-const generateRandomMac = () => {
-  const mac = "00:00:00:00:00:00".replace(/0/g, () => {
-    return (~~(Math.random() * 16)).toString(16);
-  });
-
-  return mac;
-}
+export default InitiatorAcknowledge;
