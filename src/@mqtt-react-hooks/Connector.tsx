@@ -28,19 +28,19 @@ export default function Connector({ children, brokerUrl, options = { keepalive: 
         }
       });
       mqtt.on("error", (err) => {
-        console.log(`Connection error: ${err}`);
+        console.log(`MQTT Connection error: ${err}`);
         if (mountedRef.current) {
           setStatus(err.message);
         }
       });
       mqtt.on("offline", () => {
-        //console.log("offline .......", mountedRef.current);
+        console.log("MQTT offline .......", mountedRef.current);
         if (mountedRef.current) {
           setStatus("Offline");
         }
       });
       mqtt.on("end", () => {
-        //console.log("emd ...");
+        console.log("MQTT emd ...");
         if (mountedRef.current) {
           setStatus("Offline");
         }
@@ -56,7 +56,7 @@ export default function Connector({ children, brokerUrl, options = { keepalive: 
     }
 
     return () => {
-      //  console.log("cleanup ....");
+      console.log("MQTT cleanup ....");
       //mountedRef.current = false;
       client?.end(true);
     };

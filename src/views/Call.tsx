@@ -84,7 +84,6 @@ const Call = () => {
     setTimeout(() => {
       navigate("/thankyou");
     }, 2000);
-
   }
 
 
@@ -92,9 +91,9 @@ const Call = () => {
 
 
   useEffect(() => {
-    if (videoInfo.status === "idle") {
-      navigate("/");
-    }
+    // if (videoInfo.status === "idle") {
+    //   navigate("/");
+    // }
 
     if (boothInfo?.role === "publisher") {
       console.log("initializing publisher", videoInfo.sessionId, videoInfo.token);
@@ -191,7 +190,7 @@ const Call = () => {
     }, 5000)
     const timeout = setTimeout(() => {
       navigate("/noresponse")
-    }, 6000)
+    }, 120000)
 
     return () => {
       clearInterval(interval)
@@ -199,9 +198,22 @@ const Call = () => {
     }
   }, [text.length, history])
 
+  const [showImage, setShowImage] = useState(false);
+
+
+  useEffect(() => {
+    // Set a timeout to change the showImage state after 1 minute
+    const timer = setTimeout(() => {
+      setShowImage(true);
+    }, 60000); // 60,000 milliseconds for 1 minute
+
+    // Clean up the timer if the component unmounts before the time elapses
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array ensures this effect only runs once on mount
+
 
   return (
-    <div className='w-full h-full'>
+    <div id="videos" className='w-full h-full'>
       <img src='../jameson-logo.svg' alt='logo' className='absolute w-[186px] mt-[36px] ml-[45px] z-20' />
       <p className='w-[196px] h-[88px] absolute border-[10px] border-[#007749] rounded-3xl top-20 right-10 text-5xl font-bold flex items-center justify-center z-10'>{formatTime(seconds)}</p>
       <div className='w-[237px] h-[237px] bg-[#154734] border border-[#F1E4B2] border-dashed rounded-3xl absolute top-[38%] right-4 z-10'>
@@ -216,9 +228,18 @@ const Call = () => {
       <button onClick={() => closeCall()}>
         <img src='../hangup.svg' alt='hangup-image' className='w-[44px] h-[44px] absolute right-5 bottom-5 z-10' />
       </button>
-      <img src='../caller.svg' alt='caller' className='w-[199px] h-[138px] absolute bottom-10 left-11 z-10' />
+      {/* <img src='../caller.svg' alt='caller' className='w-[199px] h-[138px] absolute bottom-10 left-11 z-10' /> */}
+      {/* <div id="publisher" className='w-[199px] h-[138px] absolute bottom-10 left-11 z-10'></div> */}
+      <div id="publisher" className='w-[199px] h-[138px] absolute bottom-10 left-11 z-10 border-2 border-solid border-gray-300 rounded-lg'></div>
       <img src='../logo.png' alt='logo' className='w-[123px] h-[122px] absolute bottom-10 right-72 z-10' />
-      <img src='/girl.png' alt='hangup-image' className='h-full w-full absolute top-0 left-0 z-0' />
+
+      {/* <img src='/girl.png' alt='hangup-image' className='h-full w-full absolute top-0 left-0 z-0' /> */}
+      <div id="subscriber" className='h-full w-full absolute top-0 left-0 z-0'></div>
+      <div className="relative min-h-screen p-8 flex justify-center items-end">
+        {showImage && (
+          <img src='../giphy (1).gif' alt='reward' className='mb-0' />
+        )}
+      </div>
     </div>
   );
 };

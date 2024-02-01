@@ -1,6 +1,13 @@
 import React from "react"
 
 const NoResponse = () => {
+    const onNext = () => {
+        //on next
+        setTimeout(() => {
+          navigate(`/`);
+        }, 1000);
+      };
+
     return (
         <div className="w-full h-full">
             <img
@@ -12,7 +19,7 @@ const NoResponse = () => {
                 Al parecer no están contestando la otra línea. ¡Por favor, intenta otra
                 vez más tarde!
             </p>
-            <button className="bg-[#880D27] w-[382px] h-[61px] flex gap-2 justify-center items-center shadow-lg rounded-sm mx-auto mt-4">
+            <button className="bg-[#880D27] w-[382px] h-[61px] flex gap-2 justify-center items-center shadow-lg rounded-sm mx-auto mt-4" onClick={onNext}>
                 <img
                     src="white-hangup.svg"
                     alt="hangup"

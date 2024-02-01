@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { useMqttState } from "~/@mqtt-react-hooks";
+import { useMqttState, useSubscription } from "~/@mqtt-react-hooks";
 import useSocket from "~/components/useSocket";
 
 import Input from "~/lib/Input";
@@ -21,6 +21,52 @@ const InitiatorAcknowledge = () => {
 
   const [socket, isLoading, error, addListener, emitMessage] = useSocket();
 
+  const { message: payload } = useSubscription([MQTT_TOPICS.CALL_ACCEPT]);
+
+  useEffect(() => {
+    onPayloadRecieved(payload);
+  }, [payload]);
+
+  const onPayloadRecieved = (payload: any) => {
+    console.log("payload recieved", payload);
+
+    if (!payload) return;
+
+    const { topic, message } = payload;
+
+    if (topic === MQTT_TOPICS.CALL_ACCEPT) {
+      onCALL_ACCEPT(message);
+    }
+  };
+
+  const onCALL_ACCEPT = (payload: any) => {
+    const { sessionId, token, initiator } = payload;
+    if (!videoInfo.sessionId)
+      return;
+    client?.publish(
+      MQTT_TOPICS.CALL_CONNECTING,
+      JSON.stringify({ ...videoInfo, status: videoInfo.status === "connecting" ? "connected" : "connecting" })
+    );
+
+    navigate(`/start/call`);
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+    }, 5000)
+
+    const timeout = setTimeout(() => {
+      navigate("/noresponse")
+    }, 60000)
+
+    return () => {
+      clearInterval(interval)
+
+      clearTimeout(timeout)
+    }
+  },)
+
+
   const ageArray = Array.from({ length: 63 }, (_, i) => i + 18);
 
   //get role from url
@@ -32,8 +78,6 @@ const InitiatorAcknowledge = () => {
       emitMessage("GET_TOKEN");
     }
   }, [socket, emitMessage]);
-
-  const history = useNavigate();
 
   useEffect(() => {
     prepareForCall();
@@ -88,14 +132,27 @@ const InitiatorAcknowledge = () => {
     client?.publish(MQTT_TOPICS.CALL_RING, JSON.stringify(payload));
   };
 
-  const onNext = () => {
-    client?.publish(
-      MQTT_TOPICS.CALL_CONNECTING,
-      JSON.stringify({ ...videoInfo, status: videoInfo.status === "connecting" ? "connected" : "connecting" })
-    );
 
-    navigate(`/start/call`);
-  };
+  const closeCall = (forceEnd = false) => {
+
+    console.log("onCloseCall", forceEnd)
+
+    if (!forceEnd) {
+      console.log("onCloseCall", videoInfo, boothInfo?.mac)
+      client?.publish(MQTT_TOPICS.CALL_END, JSON.stringify({ ...videoInfo, status: "ended", endedBy: boothInfo?.mac }));
+    }
+
+    // if (sessionRef.current) {
+    //   const session = sessionRef.current;
+    //   console.log("onCloseCall session", session.capabilities)
+    //   session.disconnect();
+    // }
+
+    setTimeout(() => {
+      navigate("/");
+    }, 2000);
+  }
+
 
   return (
     <div className='w-full h-full pt-[68px]'>
@@ -117,7 +174,9 @@ const InitiatorAcknowledge = () => {
         <img src='../green-rec.svg' alt='green-rec' className='w-[63px] h-[63px] absolute z-10 left-0 top-0' />
         <p className='w-[285px] py-1 text-xs text-center border border-[#007749] border-dashed rounded-full'>LEVANTA EL TELÉFONO PARA ESCUCHAR</p>
       </div>
-      <img src='../hangup.svg' alt='hangup-image' className='w-[44px] h-[44px] absolute right-5 bottom-5 z-20' />
+      <button onClick={() => closeCall()}>
+        <img src='../hangup.svg' alt='hangup-image' className='w-[44px] h-[44px] absolute right-5 bottom-5 z-20' />
+      </button>
     </div>
   );
 };
