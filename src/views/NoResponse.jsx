@@ -1,8 +1,13 @@
 import React from "react"
 
+import { useNavigate } from "react-router-dom";
+
 const NoResponse = () => {
+    const navigate = useNavigate();
+
     const onNext = () => {
         //on next
+        console.log("SDFSDFSDFSD")
         setTimeout(() => {
           navigate(`/`);
         }, 1000);

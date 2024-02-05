@@ -189,7 +189,7 @@ const Call = () => {
       setCurrentIndex((currentIndex) => (currentIndex + 1) % text.length)
     }, 5000)
     const timeout = setTimeout(() => {
-      navigate("/noresponse")
+      // navigate("/noresponse")
     }, 120000)
 
     return () => {
@@ -202,14 +202,24 @@ const Call = () => {
 
 
   useEffect(() => {
+    const gifDuration = 5000; // Replace with the actual duration of your GIF in milliseconds.
+
     // Set a timeout to change the showImage state after 1 minute
-    const timer = setTimeout(() => {
+    const timerToShowGif = setTimeout(() => {
       setShowImage(true);
     }, 60000); // 60,000 milliseconds for 1 minute
 
-    // Clean up the timer if the component unmounts before the time elapses
-    return () => clearTimeout(timer);
-  }, []); // Empty dependency array ensures this effect only runs once on mount
+    const timerToHideGif = setTimeout(() => {
+      setShowImage(false);
+    }, 60000 + gifDuration); // Hide the GIF after it finishes playing
+
+    // Clean up the timers if the component unmounts before time elapses
+    return () => {
+      clearTimeout(timerToShowGif);
+      clearTimeout(timerToHideGif);
+    };
+  }, []);
+
 
 
   return (
