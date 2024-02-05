@@ -22,9 +22,6 @@ const Call = () => {
 
   const sessionRef = useRef<any>(null);
 
-  const { countdown, countdownHHMM, startTimer, resetTimer } = useTimer(60 * 10);
-
-
   const { message: payload } = useSubscription([MQTT_TOPICS.CALL_END]);
 
 
@@ -50,20 +47,10 @@ const Call = () => {
     console.log({ message })
     console.log({ videoInfo })
 
-
     if (message.status === "ended" && message.incomming_sessionId === videoInfo.incomming_sessionId && videoInfo.endedBy !== boothInfo?.mac) {
       closeCall(true);
     }
-
-
   }
-
-
-  useEffect(() => {
-    if (countdown === 0) {
-      closeCall();
-    }
-  }, [countdown]);
 
 
   const closeCall = (forceEnd = false) => {
@@ -86,14 +73,10 @@ const Call = () => {
     }, 2000);
   }
 
-
-
-
-
   useEffect(() => {
-    // if (videoInfo.status === "idle") {
-    //   navigate("/");
-    // }
+    if (videoInfo.status === "idle") {
+      navigate("/");
+    }
 
     if (boothInfo?.role === "publisher") {
       console.log("initializing publisher", videoInfo.sessionId, videoInfo.token);
@@ -147,7 +130,6 @@ const Call = () => {
         },
         handleError
       );
-      startTimer();
     });
 
     // Create a publisher
@@ -181,28 +163,76 @@ const Call = () => {
   const [seconds, setSeconds] = useState(0)
   const [currentIndex, setCurrentIndex] = useState(0)
 
-  const text = ["¿Cómo te llamas?", "¿En qué barra estás?", "¿Cuál es tu spot favorito en P.R.?", "¿Jangueas en corillx o en la tuya?", "¿Cuál sería tu super poder?", "¿Cuál es tu comida favorita?", "¿Qué te apasiona?", "¿Empanadilla o Pastelillo?", "¿Amarillitos o tostones?", "¡Cuéntame algo que no sepan tus papás!"]
+  const text = ["En pocos segundos ampliarás tu círculo de amistades. Aprovecha este tiempo al máximoy recibirás una recompensa.", "¿Cómo te llamas?", "¿En qué barra estás?", "¿Cuál es tu spot favorito en P.R.?", "¿Jangueas en corillx o en la tuya?", "¿Cuál sería tu super poder?", "¿Cuál es tu comida favorita?", "¿Qué te apasiona?", "¿Empanadilla o Pastelillo?", "¿Amarillitos o tostones?", "¡Cuéntame algo que no sepan tus papás!"]
+  const [textStyle, setTextStyle] = useState('text-xl');
+
+  const [showFinalMessage, setShowFinalMessage] = useState(false);
+
+
+  // useEffect(() => {
+  //   const interval1 = setInterval(() => {
+  //     if (!showFinalMessage) {
+  //       setCurrentIndex((currentIndex) => (currentIndex + 1) % text.length)
+  //       setTextStyle('text-3xl');
+  //     }
+  //   }, 5000)
+  //   const interval2 = setInterval(() => {
+  //     setSeconds((seconds) => seconds + 1)
+  //   }, 1000)
+  //   const timeout = setTimeout(() => {
+  //     // navigate("/noresponse")
+  //     setShowFinalMessage(true);
+  //   }, 60000)
+
+  //   return () => {
+  //     clearInterval(interval1)
+  //     clearInterval(interval2)
+  //     clearTimeout(timeout)
+  //   }
+  // }, [text.length, history])
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSeconds((seconds) => seconds + 5)
-      setCurrentIndex((currentIndex) => (currentIndex + 1) % text.length)
-    }, 5000)
-    const timeout = setTimeout(() => {
-      // navigate("/noresponse")
-    }, 120000)
-
-    return () => {
-      clearInterval(interval)
-      clearTimeout(timeout)
+    const numberOfTextChangesBeforeStop = 10; // Number of times to change text before stopping
+    let interval1: string | number | NodeJS.Timer | undefined;
+  
+    if (!showFinalMessage) {
+      interval1 = setInterval(() => {
+        setCurrentIndex((currentIndex) => (currentIndex + 1) % text.length);
+        setTextStyle('text-3xl');
+      }, 5000);
     }
-  }, [text.length, history])
+  
+    const interval2 = setInterval(() => {
+      setSeconds((seconds) => seconds + 1);
+    }, 1000);
+  
+    // Schedule the final message to show after 60 seconds,
+    // but stop changing the text after 50 seconds.
+    const timeoutToShowFinalMessage = setTimeout(() => {
+      setShowFinalMessage(true);
+    }, 60000);
+  
+    // Stop cycling through texts after 50 seconds
+    const timeoutToStopTextChange = setTimeout(() => {
+      clearInterval(interval1);
+    }, 5000 * numberOfTextChangesBeforeStop);
+  
+    return () => {
+      clearTimeout(timeoutToShowFinalMessage);
+      clearTimeout(timeoutToStopTextChange);
+      clearInterval(interval1);
+      clearInterval(interval2);
+    };
+  }, []);
+  
+  // ... The rest of the component goes here ...
+  
 
   const [showImage, setShowImage] = useState(false);
 
 
   useEffect(() => {
-    const gifDuration = 5000; // Replace with the actual duration of your GIF in milliseconds.
+    const gifDuration = 15000; // Replace with the actual duration of your GIF in milliseconds.
 
     // Set a timeout to change the showImage state after 1 minute
     const timerToShowGif = setTimeout(() => {
@@ -220,8 +250,6 @@ const Call = () => {
     };
   }, []);
 
-
-
   return (
     <div id="videos" className='w-full h-full'>
       <img src='../jameson-logo.svg' alt='logo' className='absolute w-[186px] mt-[36px] ml-[45px] z-20' />
@@ -230,7 +258,18 @@ const Call = () => {
         <div className='relative w-full h-full flex items-center justify-center'>
           <img src='/hand2.svg' alt='spaeaker' className='w-[77px] h-[88px] absolute -top-10 -left-6' />
           <h6 className='pb-[2px] border-b border-[#FFF0BF] absolute top-0 text-sm pt-1'>AMPLÍA TU CÍRCULO</h6>
-          <p className='w-[217px] text-3xl font-bold text-center'>{text[currentIndex]}</p>
+          {/* <p className={`w-[217px] ${textStyle} font-bold text-center`}>{text[currentIndex]}</p> */}
+
+          {!showFinalMessage ? (
+            <p className={`w-[217px] ${textStyle} font-bold text-center`}>{text[currentIndex]}</p>
+          ) : (
+            <div className="text-center">
+              <h3 className="w-[217px] text-2xl">¡FELICIDADES! Llegaron a 01:00</h3>
+              <h4 className="w-[225px] text-xl">pero puedes continuar conversando. </h4>
+            </div>
+          )}
+          {/* <p className={`w-[217px] ${textStyle} font-bold text-center`}>{displayText}</p> */}
+
           <img src='/signifier.svg' alt='signifier' className='w-[22px] h-[29px] absolute bottom-3 right-4' />
         </div>
         <p className='text-sm p-2 opacity-80'>Te tiramos la toalla con algunas peguntas para romper el hielo.</p>

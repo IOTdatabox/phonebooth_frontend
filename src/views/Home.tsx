@@ -119,9 +119,10 @@ const InitiatorAcknowledge = () => {
   };
 
   const IntializeCall = () => {
-    if(isImageVisible){
-    navigate("/start/initiator-ack");}
-    else{
+    if (isImageVisible) {
+      navigate("/start/initiator-ack");
+    }
+    else {
       console.log("SDFDSFfsdfsd")
       toast('Debe aceptar los Términos de uso para utilizar el servicio.', { type: 'error' });
       console.log("ZZZZZ")
@@ -156,15 +157,16 @@ const InitiatorAcknowledge = () => {
         disabled={isLoading}      >
         ¡LLAMAR!
       </button>
-      <div className="flex items-center gap-2 mt-10" onClick={toggleImage}>
-        <button
-          className="w-[33px] h-[33px] bg-cover bg-center flex items-center justify-center"
+      <div className="flex items-center gap-2 mt-10 z-50" onClick={(toggleImage)}>
+        <div
+          className="w-[33px] h-[33px] bg-center flex items-center justify-center"
           style={{ backgroundImage: `url(${markBox})` }}
-          
+
         >
           {isImageVisible && (
-            <img src="ck-mark.svg" alt="tick-image" className="w-[18px]" />
-          )}        </button>
+            <img src="../ck-mark.svg" alt="tick-image" className="w-[18px]" />
+          )}
+        </div>
         <p className="w-[266px] text-xs">
           Confirmo que soy mayor de 18 años de edad, y acepto los términos y
           condiciones.

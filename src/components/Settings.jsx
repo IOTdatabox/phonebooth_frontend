@@ -4,7 +4,7 @@ const Settings = () => {
     const [showMenu, setShowMenu] = useState(false)
 
     return (
-        <div className='absolute top-4 right-5 z-10'>
+        <div className='absolute top-4 right-5 z-20'>
             <button onClick={() => setShowMenu(!showMenu)}>
                 <svg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
                     <path
@@ -30,7 +30,7 @@ const Settings = () => {
                                         />
                                     </svg>
                                     <span className='w-6 h-12 bg-[#154734] relative'>
-                                        <span className='absolute bottom-0 left-0 w-full h-[70%] bg-[#FFF5B5] z-10'></span>
+                                        <span className='absolute bottom-0 left-0 w-full h-[90%] bg-[#FFF5B5] z-10'></span>
                                     </span>
                                 </li>
                                 <li className='flex flex-col gap-2 '>
@@ -41,7 +41,7 @@ const Settings = () => {
                                         />
                                     </svg>
                                     <span className='w-6 h-12 bg-[#154734] relative'>
-                                        <span className='absolute bottom-0 left-0 w-full h-[60%] bg-[#FFF5B5] z-10'></span>
+                                        <span className='absolute bottom-0 left-0 w-full h-[80%] bg-[#FFF5B5] z-10'></span>
                                     </span>
                                 </li>
                                 <li className='flex flex-col gap-2 '>

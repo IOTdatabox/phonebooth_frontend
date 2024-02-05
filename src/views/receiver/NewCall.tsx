@@ -181,41 +181,6 @@ function NewCall() {
         </button>
       </div>
 
-
-      {/* <div className="relative flex justify-center w-full">
-        <div className="absolute left-0 ml-20 mt-[10px]">
-          <div className="w-[400px] h-[75px] relative flex justify-center items-center">
-            <img
-              src="../green-rec.svg"
-              alt="green-rec"
-              className="w-[63px] h-[63px] absolute z-10 left-0 top-0"
-            />
-            <p className="w-[320px] py-1 text-[16px] text-center border border-[#007749] border-dashed rounded-full">
-              LEVANTA EL TELÉFONO PARA ESCUCHAR
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col items-center">
-          <div className="flex items-center gap-2 mt-10" onClick={toggleImage}>
-            <button
-              className="w-[33px] h-[33px] bg-cover bg-center flex items-center justify-center"
-              style={{ backgroundImage: `url(${markBox})` }}
-
-            >
-              {isImageVisible && (
-                <img src="../ck-mark.svg" alt="tick-image" className="w-[18px]" />
-              )}        </button>
-            <p className="w-[266px] text-xs">
-              Confirmo que soy mayor de 18 años de edad, y acepto los términos y
-              condiciones.
-            </p>
-          </div>
-          <p className="bg-[#880D27] w-[320px] h-[40px] text-[18px]] font-bold flex items-center justify-center rounded-full mt-5">LEER TÉRMINOS Y CONDICIONES*</p>
-        </div>
-      </div>
-
-      <p className="w-[311px] text-xs absolute bottom-5 right-6 z-10">Consuma Responsablemente. Jameson Irish Whiskey 40% Alc. Vol. Distribuye B. Fernánadez & Hnos.</p> */}
-
       <div className="flex">
         <div className="w-[328px] h-[63px] relative flex justify-center items-center ml-8 mt-[10px]">
           <img
@@ -228,7 +193,7 @@ function NewCall() {
           </p>
         </div>
         <div className="flex flex-col items-center">
-          <div className="flex items-center gap-2 mt-[24px]" onClick={toggleImage}>
+          <div className="flex items-center gap-2 mt-[24px]  z-50" onClick={toggleImage}>
             <span
               className="w-[33px] h-[33px] bg-cover bg-center flex items-center justify-center"
               style={{ backgroundImage: `url(${markBox})` }}
